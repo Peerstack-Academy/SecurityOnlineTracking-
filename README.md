@@ -1,6 +1,5 @@
 # Peerstack Multi-filter demo (simple static)
 
-Bu kiçik layihə wireframe (`Şəkil 1.0` və `Şəkil 1.1`) üçün sadə bir nümunədir.
 
 Xüsusiyyətlər:
 - **Login səhifəsi** — istifadəçi adı və şifrə ilə giriş (demo: admin/admin)
