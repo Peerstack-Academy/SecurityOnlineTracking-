@@ -1,6 +1,6 @@
+import cookieParser from 'cookie-parser';
 import { google } from "googleapis";
 import express from 'express';
-import cookieParser from 'cookie-parser';
 import fs from "fs";
 
 const app = express()
@@ -16,6 +16,20 @@ const credentials = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 const users_data = JSON.parse(fs.readFileSync("users.json", "utf8"));
 const sessions = {};
 
+const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000;
+
+function check_session(session_id) {
+    if (!sessions[session_id]) {
+        return false;
+    }
+
+    if (Date.now() - sessions[session_id].createdAt > SESSION_EXPIRY_TIME) {
+        delete sessions[session_id];
+        return false;
+    }
+    return true;
+}
+
 const client = new google.auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
@@ -26,7 +40,7 @@ const sheets = google.sheets({ version: "v4", auth: client });
 app.post('/appointments', async (req, res) => {
     const session_id = req.cookies.session_id;
 
-    if (!session_id || !sessions[session_id]) {
+    if (!session_id || !check_session(session_id)) {
         return res.status(401).json({ success: false, message: "Giriş etmədən bu səhifəyə daxil ola bilməzsiniz." });
     }
 
@@ -88,7 +102,7 @@ app.post('/appointments', async (req, res) => {
 app.post('/login', (req, res) => {
     const cookie_session = req.cookies.session_id;
     
-    if (cookie_session && sessions[cookie_session]) {
+    if (cookie_session && check_session(cookie_session)) {
         return res.json({ success: false, message: "Hal hazırda giriş etmiş vəziyyətdəsiniz." });
     }
 
@@ -111,7 +125,10 @@ app.post('/login', (req, res) => {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
 
-        sessions[result] = { username: username };
+        sessions[result] = { 
+            username: username,
+            createdAt: Date.now()
+        };
 
         res.cookie("session_id", result, { maxAge: 43200000 });
         res.json({ success: true, message: "Xoş gəlmişsiniz!" });
@@ -125,7 +142,7 @@ app.post('/login', (req, res) => {
 app.get('/logout', (req, res) => {
     const session_id = req.cookies.session_id;
 
-    if (session_id && sessions[session_id]) {
+    if (session_id && check_session(session_id)) {
         delete sessions[session_id];
 
         res.clearCookie("session_id");
