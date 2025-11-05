@@ -25,11 +25,12 @@ const sheets = google.sheets({ version: "v4", auth: client });
 
 app.post('/appointments', async (req, res) => {
     const session_id = req.cookies.session_id;
-    const recieved_data = req.body;
 
     if (!session_id || !sessions[session_id]) {
         return res.status(401).json({ success: false, message: "Giriş etmədən bu səhifəyə daxil ola bilməzsiniz." });
     }
+
+    const recieved_data = req.body;
 
     const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
 
@@ -84,13 +85,20 @@ app.post('/appointments', async (req, res) => {
     res.json(json_data);
 });
 
-app.get('/login', (req, res) => {
-    const username = req.query.username;
-    const password = req.query.password;
+app.post('/login', (req, res) => {
     const cookie_session = req.cookies.session_id;
     
     if (cookie_session && sessions[cookie_session]) {
         return res.json({ success: false, message: "Hal hazırda giriş etmiş vəziyyətdəsiniz." });
+    }
+
+    const recieved_data = req.body;
+    const username = recieved_data.username;
+    const password = recieved_data.password;
+
+    if (!username || !password) {
+        res.status(400);
+        return res.json({ success: false, message: "İstifadəçi adı və ya şifrə boş ola bilməz." });
     }
 
     const user = users_data.find(user => user.username === username && user.password === password);
@@ -116,6 +124,7 @@ app.get('/login', (req, res) => {
 
 app.get('/logout', (req, res) => {
     const session_id = req.cookies.session_id;
+
     if (session_id && sessions[session_id]) {
         delete sessions[session_id];
 
