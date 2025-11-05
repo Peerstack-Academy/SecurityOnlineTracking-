@@ -11,7 +11,7 @@ The server will be running on port 3000 by default. You can change the port by m
 The API has the following endpoints:
 - `POST /login` - Logs in a user. Requires `username` and `password` in the request body.
 - `GET /logout` - Logs out the current user. Requires a valid session cookie.
-- `POST /data` - Adds data to the Google Sheet. Requires a valid session cookie and `data` in the request body.
+- `POST /data` - Gets data from Google Sheet. Requires a valid session cookie and request body.
 
 
 ## `POST /login`
