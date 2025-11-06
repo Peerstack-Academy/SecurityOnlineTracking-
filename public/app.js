@@ -193,6 +193,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
 
     selectedDateEl.textContent = selectedDate? selectedDate.toLocaleDateString() : '—';
+    
+    // Update status counts
+    updateStatusCounts();
   }
 
   function renderCalendar(){
@@ -217,15 +220,62 @@ document.addEventListener('DOMContentLoaded',()=>{
       const cellDate = new Date(year,month,d);
       cell.textContent = d;
       if(selectedDate && sameDay(cellDate, selectedDate)) cell.classList.add('selected');
-      cell.addEventListener('click',()=>{ selectedDate = new Date(year,month,d); currentPage=1; render(); renderCalendar(); });
+      cell.addEventListener('click',()=>{ 
+        selectedDate = new Date(year,month,d); 
+        currentPage=1; 
+        fetchData(); // Avtomatik axtarış
+        renderCalendar(); 
+      });
       calendarEl.appendChild(cell);
     }
+  }
+
+  function updateStatusCounts() {
+    const filtered = applyFilters();
+    
+    const telebeCount = filtered.filter(r => r.role === 'Telebe').length;
+    const isciCount = filtered.filter(r => r.role === 'İşçi').length;
+    const qonaqCount = filtered.filter(r => r.role === 'Qonaq').length;
+    
+    const telebeBtn = document.getElementById('count-telebe');
+    const isciBtn = document.getElementById('count-isci');
+    const qonaqBtn = document.getElementById('count-qonaq');
+    
+    if (telebeBtn) telebeBtn.innerHTML = `Telebe: <span>${telebeCount}</span>`;
+    if (isciBtn) isciBtn.innerHTML = `İşçi: <span>${isciCount}</span>`;
+    if (qonaqBtn) qonaqBtn.innerHTML = `Qonaq: <span>${qonaqCount}</span>`;
   }
 
   selectedDate = new Date(); 
   calendarMonth = new Date(); 
   renderCalendar();
   fetchData();
+
+  // Status badge click handlers
+  const telebeBtn = document.getElementById('count-telebe');
+  const isciBtn = document.getElementById('count-isci');
+  const qonaqBtn = document.getElementById('count-qonaq');
+  
+  if (telebeBtn) {
+    telebeBtn.addEventListener('click', () => {
+      inRole.value = 'Telebe';
+      fetchData();
+    });
+  }
+  
+  if (isciBtn) {
+    isciBtn.addEventListener('click', () => {
+      inRole.value = 'İşçi';
+      fetchData();
+    });
+  }
+  
+  if (qonaqBtn) {
+    qonaqBtn.addEventListener('click', () => {
+      inRole.value = 'Qonaq';
+      fetchData();
+    });
+  }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
