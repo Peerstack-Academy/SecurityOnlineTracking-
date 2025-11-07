@@ -35,12 +35,25 @@ document.addEventListener('DOMContentLoaded',()=>{
   const inTo = el('filter-to');
   const inRole = el('filter-role');
 
-  // Fetch data from API
   async function fetchData() {
     const ad = inName.value.trim();
     const soyad = inSurname.value.trim();
     const status = inRole.value;
-    const date = selectedDate ? `${selectedDate.getMonth() + 1}/${selectedDate.getDate()}/${selectedDate.getFullYear()}` : '';
+
+    let fromDate = '';
+    let toDate = '';
+    
+    if (inFrom.value) {
+      const fromParts = inFrom.value.split('-');
+      fromDate = `${parseInt(fromParts[1])}/${parseInt(fromParts[2])}/${fromParts[0]}`;
+    }
+    
+    if (inTo.value) {
+      const toParts = inTo.value.split('-');
+      toDate = `${parseInt(toParts[1])}/${parseInt(toParts[2])}/${toParts[0]}`;
+    }
+    
+    const date = (fromDate || toDate) ? '' : (selectedDate ? `${selectedDate.getMonth() + 1}/${selectedDate.getDate()}/${selectedDate.getFullYear()}` : '');
     const fin = inFin.value.trim();
 
     try {
@@ -49,7 +62,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ad, soyad, status, date, fin })
+        body: JSON.stringify({ ad, soyad, status, date, fin, fromDate, toDate })
       });
 
       if (!response.ok) {
@@ -58,7 +71,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
       const apiData = await response.json();
       
-      // Transform API response to match internal format
       data.length = 0;
       apiData.forEach(item => {
         const nameParts = item.NAME.trim().split(' ');
@@ -76,21 +88,20 @@ document.addEventListener('DOMContentLoaded',()=>{
       currentPage = 1;
       render();
     } catch (error) {
-      console.error('Error fetching data:', error);
-      alert('Məlumat yükləmə zamanı xəta baş verdi');
+      document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      window.location.href = 'login.html';
     }
   }
 
   el('btn-search').addEventListener('click', fetchData);
   el('btn-reset').addEventListener('click',()=>{ inName.value='';inSurname.value='';inFin.value='';inFrom.value='';inTo.value='';inRole.value=''; selectedDate=null; currentPage=1; fetchData(); renderCalendar(); });
-  el('btn-today').addEventListener('click',()=>{ selectedDate=new Date(); calendarMonth=new Date(); currentPage=1; fetchData(); renderCalendar(); });
-  el('cal-prev').addEventListener('click',()=>{ if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()-1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
-  el('cal-next').addEventListener('click',()=>{ if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()+1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
+  el('btn-today').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; selectedDate=new Date(); calendarMonth=new Date(); currentPage=1; fetchData(); renderCalendar(); });
+  el('cal-prev').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()-1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
+  el('cal-next').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()+1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
   el('month-prev').addEventListener('click',()=>{ calendarMonth.setMonth(calendarMonth.getMonth()-1); renderCalendar(); });
   el('month-next').addEventListener('click',()=>{ calendarMonth.setMonth(calendarMonth.getMonth()+1); renderCalendar(); });
 
   function formatDateTime(dt){
-    // dt comes in format "month/day/year time" e.g., "11/5/2025 0:00:00"
     try {
       const [dateStr, timeStr] = dt.split(' ');
       const [month, day, year] = dateStr.split('/');
@@ -119,7 +130,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(role) out = out.filter(r=>r.role===role);
     if(from) out = out.filter(r=> {
       try {
-        const dateStr = r.datetime.split(' ')[0]; // Get "11/5/2025" part
+        const dateStr = r.datetime.split(' ')[0];
         const [month, day, year] = dateStr.split('/');
         const itemDate = new Date(year, month - 1, day);
         return itemDate >= from;
@@ -127,16 +138,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
     if(to) out = out.filter(r=> {
       try {
-        const dateStr = r.datetime.split(' ')[0]; // Get "11/5/2025" part
+        const dateStr = r.datetime.split(' ')[0];
         const [month, day, year] = dateStr.split('/');
         const itemDate = new Date(year, month - 1, day);
         return itemDate <= to;
       } catch (e) { return true; }
     });
-    if(selectedDate){
+    if(selectedDate && !from && !to){
       out = out.filter(r=> {
         try {
-          const dateStr = r.datetime.split(' ')[0]; // Get "11/5/2025" part
+          const dateStr = r.datetime.split(' ')[0];
           const [month, day, year] = dateStr.split('/');
           const itemDate = new Date(year, month - 1, day);
           return sameDay(itemDate, selectedDate);
@@ -148,6 +159,30 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function render(){
     const filtered = applyFilters();
+
+    filtered.sort((a, b) => {
+      try {
+        const [dateStrA, timeStrA] = a.datetime.split(' ');
+        const [monthA, dayA, yearA] = dateStrA.split('/');
+        const dateA = new Date(yearA, monthA - 1, dayA);
+        if (timeStrA) {
+          const [hourA, minA, secA] = timeStrA.split(':');
+          dateA.setHours(hourA, minA, secA || 0);
+        }
+
+        const [dateStrB, timeStrB] = b.datetime.split(' ');
+        const [monthB, dayB, yearB] = dateStrB.split('/');
+        const dateB = new Date(yearB, monthB - 1, dayB);
+        if (timeStrB) {
+          const [hourB, minB, secB] = timeStrB.split(':');
+          dateB.setHours(hourB, minB, secB || 0);
+        }
+
+        return dateA - dateB;
+      } catch (e) {
+        return 0;
+      }
+    });
 
     const total = filtered.length;
     const pages = Math.max(1, Math.ceil(total/pageSize));
@@ -194,7 +229,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     selectedDateEl.textContent = selectedDate? selectedDate.toLocaleDateString() : '—';
     
-    // Update status counts
     updateStatusCounts();
   }
 
@@ -221,9 +255,11 @@ document.addEventListener('DOMContentLoaded',()=>{
       cell.textContent = d;
       if(selectedDate && sameDay(cellDate, selectedDate)) cell.classList.add('selected');
       cell.addEventListener('click',()=>{ 
-        selectedDate = new Date(year,month,d); 
+        selectedDate = new Date(year,month,d);
+        inFrom.value = '';
+        inTo.value = '';
         currentPage=1; 
-        fetchData(); // Avtomatik axtarış
+        fetchData();
         renderCalendar(); 
       });
       calendarEl.appendChild(cell);
@@ -251,7 +287,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderCalendar();
   fetchData();
 
-  // Status badge click handlers
   const telebeBtn = document.getElementById('count-telebe');
   const isciBtn = document.getElementById('count-isci');
   const qonaqBtn = document.getElementById('count-qonaq');
@@ -278,18 +313,39 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
+  const logoutModal = document.getElementById('logoutModal');
+  const cancelLogoutBtn = document.getElementById('cancelLogout');
+  const confirmLogoutBtn = document.getElementById('confirmLogout');
+  const modalOverlay = document.getElementById('modalOverlay');
+
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      if (confirm('Çıxış etmək istədiyinizdən əminsiniz?')) {
-        fetch('/api/logout', { method: 'GET' })
-          .then(() => {
-            window.location.href = 'login.html';
-          })
-          .catch(error => {
-            console.error('Logout error:', error);
-            window.location.href = 'login.html';
-          });
-      }
+      logoutModal.classList.remove('hidden');
+    });
+  }
+
+  if (cancelLogoutBtn) {
+    cancelLogoutBtn.addEventListener('click', () => {
+      logoutModal.classList.add('hidden');
+    });
+  }
+
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', () => {
+      logoutModal.classList.add('hidden');
+    });
+  }
+
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.addEventListener('click', () => {
+      fetch('/api/logout', { method: 'GET' })
+        .then(() => {
+          window.location.href = 'login.html';
+        })
+        .catch(error => {
+          console.error('Logout error:', error);
+          window.location.href = 'login.html';
+        });
     });
   }
 });

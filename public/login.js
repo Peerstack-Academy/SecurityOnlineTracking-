@@ -1,6 +1,27 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
+  const errorModal = document.getElementById('errorModal');
+  const errorMessage = document.getElementById('errorMessage');
+  const closeErrorModalBtn = document.getElementById('closeErrorModal');
+  const errorModalOverlay = document.getElementById('errorModalOverlay');
+
+  const showErrorModal = (message) => {
+    errorMessage.textContent = message;
+    errorModal.classList.remove('hidden');
+  };
+
+  const hideErrorModal = () => {
+    errorModal.classList.add('hidden');
+  };
+
+  if (closeErrorModalBtn) {
+    closeErrorModalBtn.addEventListener('click', hideErrorModal);
+  }
+
+  if (errorModalOverlay) {
+    errorModalOverlay.addEventListener('click', hideErrorModal);
+  }
   
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
@@ -10,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
     
       if (!username || !password) {
-        alert('Zəhmət olmasa bütün sahələri doldurun');
+        showErrorModal('Zəhmət olmasa bütün sahələri doldurun');
         return;
       }
       fetch('/api/login', {
@@ -23,15 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json())
       .then(data => {
           if (data.success) {
-              alert(data.message);
               window.location.href = '/';
           } else {
-              alert(data.message);
+              showErrorModal(data.message);
           }
       })
       .catch(error => {
           console.error('Error:', error);
-          alert(error);
+          showErrorModal('Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
       });
     });
   }

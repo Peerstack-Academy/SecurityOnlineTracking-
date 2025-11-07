@@ -91,6 +91,35 @@ app.post('/api/appointments', async (req, res) => {
             }
         }
 
+        if (filter_check && (recieved_data.fromDate || recieved_data.toDate)) {
+            try {
+                const dateOnly = rowData.DATE ? rowData.DATE.split(' ')[0] : "";
+                if (dateOnly) {
+                    const [month, day, year] = dateOnly.split('/');
+                    const rowDate = new Date(year, month - 1, day);
+                    
+                    if (recieved_data.fromDate && recieved_data.fromDate.trim() !== '') {
+                        const [fMonth, fDay, fYear] = recieved_data.fromDate.split('/');
+                        const fromDate = new Date(fYear, fMonth - 1, fDay);
+                        if (rowDate < fromDate) {
+                            filter_check = false;
+                        }
+                    }
+                    
+                    if (filter_check && recieved_data.toDate && recieved_data.toDate.trim() !== '') {
+                        const [tMonth, tDay, tYear] = recieved_data.toDate.split('/');
+                        const toDate = new Date(tYear, tMonth - 1, tDay);
+                        toDate.setHours(23, 59, 59, 999);
+                        if (rowDate > toDate) {
+                            filter_check = false;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log(`Date range parsing error: ${e}`);
+            }
+        }
+
         if (recieved_data.fin && recieved_data.fin.trim() !== '' && filter_check) {
             if (!rowData.FIN.toLowerCase().includes(recieved_data.fin.toLowerCase())) {
                 filter_check = false;
