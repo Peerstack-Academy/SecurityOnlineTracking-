@@ -62,10 +62,17 @@ document.addEventListener('DOMContentLoaded',()=>{
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'same-origin',
         body: JSON.stringify({ ad, soyad, status, date, fin, fromDate, toDate })
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Only redirect on authentication failure
+          document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          window.location.href = 'login.html';
+          return;
+        }
         throw new Error('Failed to fetch data');
       }
 
@@ -88,8 +95,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       currentPage = 1;
       render();
     } catch (error) {
-      document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      window.location.href = 'login.html';
+      console.error('Fetch error:', error);
+      // Only show error message, don't logout on network errors
+      alert('Məlumatları yükləyərkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
     }
   }
 
