@@ -1,5 +1,4 @@
 const usersData = JSON.parse(process.env.USERS_DATA || '[]');
-const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000;
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -10,20 +9,6 @@ function parseCookies(cookieHeader) {
     });
   }
   return cookies;
-}
-
-function checkSession(sessionId) {
-  if (!sessionId) return false;
-  const sessions = JSON.parse(process.env.SESSIONS || '{}');
-  
-  if (!sessions[sessionId]) {
-    return false;
-  }
-
-  if (Date.now() - sessions[sessionId].createdAt > SESSION_EXPIRY_TIME) {
-    return false;
-  }
-  return true;
 }
 
 export async function handler(event, context) {
@@ -37,7 +22,8 @@ export async function handler(event, context) {
   const cookies = parseCookies(event.headers.cookie);
   const cookieSession = cookies.session_id;
   
-  if (cookieSession && checkSession(cookieSession)) {
+  // Eğer zaten bir session cookie'si varsa
+  if (cookieSession) {
     return {
       statusCode: 200,
       body: JSON.stringify({ success: false, message: "Hal hazırda giriş etmiş vəziyyətdəsiniz." })
@@ -59,6 +45,7 @@ export async function handler(event, context) {
     const user = usersData.find(user => user.username === username && user.password === password);
     
     if (user) {
+      // Random session token oluştur
       let result = '';
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       const charactersLength = characters.length;
@@ -66,18 +53,19 @@ export async function handler(event, context) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
       }
 
-      // NOT: Gerçek production'da bu session'ı Redis/Database'e kaydetmeniz gerekir
-      // Şimdilik cookie'ye kaydediyoruz
+      // Token'a kullanıcı bilgisi ve zaman ekle (base64 encoded)
       const sessionData = {
         username: username,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        token: result
       };
+      const encodedSession = Buffer.from(JSON.stringify(sessionData)).toString('base64');
 
       return {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `session_id=${result}; Max-Age=43200; Path=/; Secure; SameSite=Lax`
+          'Set-Cookie': `session_id=${encodedSession}; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax`
         },
         body: JSON.stringify({ success: true, message: "Xoş gəlmişsiniz!" })
       };

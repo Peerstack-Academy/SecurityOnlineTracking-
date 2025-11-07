@@ -4,7 +4,7 @@ const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS || '{}');
 const spreadsheetId = process.env.SPREADSHEET_ID || "1Zb8yexQkS2I2y8TyeVtQx6dZ51QzhxTNox4MXon5FmQ";
 const range = "Sheet1";
 
-const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000;
+const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000; // 12 saat
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -17,20 +17,23 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
-function checkSession(sessionId) {
-  if (!sessionId) return false;
+function checkSession(encodedSession) {
+  if (!encodedSession) return false;
   
-  // Session'ları environment variable'dan okuyoruz (geçici çözüm)
-  const sessions = JSON.parse(process.env.SESSIONS || '{}');
-  
-  if (!sessions[sessionId]) {
+  try {
+    // Base64'ten decode et
+    const sessionJson = Buffer.from(encodedSession, 'base64').toString('utf-8');
+    const sessionData = JSON.parse(sessionJson);
+    
+    // Zaman kontrolü
+    if (Date.now() - sessionData.createdAt > SESSION_EXPIRY_TIME) {
+      return false;
+    }
+    
+    return true;
+  } catch (e) {
     return false;
   }
-
-  if (Date.now() - sessions[sessionId].createdAt > SESSION_EXPIRY_TIME) {
-    return false;
-  }
-  return true;
 }
 
 export async function handler(event, context) {
