@@ -77,7 +77,7 @@ export async function handler(event, context) {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `session_id=${result}; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax`
+          'Set-Cookie': `session_id=${result}; Max-Age=43200; Path=/; Secure; SameSite=Lax`
         },
         body: JSON.stringify({ success: true, message: "Xoş gəlmişsiniz!" })
       };

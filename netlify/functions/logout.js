@@ -26,7 +26,7 @@ export async function handler(event, context) {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Set-Cookie': 'session_id=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax'
+        'Set-Cookie': 'session_id=; Max-Age=0; Path=/; Secure; SameSite=Lax'
       },
       body: JSON.stringify({ success: true, message: "Hesabınızdan çıxış etdiniz." })
     };
