@@ -346,7 +346,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   if (confirmLogoutBtn) {
     confirmLogoutBtn.addEventListener('click', () => {
-      fetch('/api/logout', { method: 'GET' })
+      fetch('/api/logout', { 
+        method: 'GET',
+        credentials: 'same-origin'
+      })
         .then(() => {
           window.location.href = 'login.html';
         })

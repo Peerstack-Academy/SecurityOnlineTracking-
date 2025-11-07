@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: {
               'Content-Type': 'application/json'
           },
+          credentials: 'same-origin',
           body: JSON.stringify({ username, password })
       })
       .then(res => res.json())

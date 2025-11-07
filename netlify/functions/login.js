@@ -48,7 +48,7 @@ export async function handler(event, context) {
   if (sessionCookie && checkSessionCookie(sessionCookie)) {
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: false, message: "Hal hazırda giriş etmiş vəziyyətdəsiniz." })
+      body: JSON.stringify({ success: true, message: "Xoş gəlmişsiniz!" })
     };
   }
 
@@ -82,7 +82,7 @@ export async function handler(event, context) {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `session_id=${encodedCookie}; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax`
+          'Set-Cookie': `session_id=${encodedCookie}; Max-Age=43200; Path=/; SameSite=Lax; Secure`
         },
         body: JSON.stringify({ success: true, message: "Xoş gəlmişsiniz!" })
       };
