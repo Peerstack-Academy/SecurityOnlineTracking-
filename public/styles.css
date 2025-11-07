@@ -842,3 +842,16 @@ body {
   transform: scale(0.98);
   box-shadow: 0 2px 8px rgba(177, 19, 35, 0.4);
 }
+@media (max-width: 545px) {
+  .right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .cal-day {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
