@@ -1,4 +1,5 @@
 const usersData = JSON.parse(process.env.USERS_DATA || '[]');
+const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000; // 12 saat
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -11,6 +12,28 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
+function checkSessionCookie(cookieValue) {
+  if (!cookieValue) return false;
+  
+  try {
+    // Cookie formatı: username:timestamp:randomToken
+    const decoded = Buffer.from(cookieValue, 'base64').toString('utf8');
+    const [username, timestamp] = decoded.split(':');
+    
+    const createdAt = parseInt(timestamp);
+    if (isNaN(createdAt)) return false;
+    
+    // Session süresi kontrolü
+    if (Date.now() - createdAt > SESSION_EXPIRY_TIME) {
+      return false;
+    }
+    
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 export async function handler(event, context) {
   if (event.httpMethod !== 'POST') {
     return {
@@ -20,10 +43,9 @@ export async function handler(event, context) {
   }
 
   const cookies = parseCookies(event.headers.cookie);
-  const cookieSession = cookies.session_id;
+  const sessionCookie = cookies.session_id;
   
-  // Eğer zaten bir session cookie'si varsa
-  if (cookieSession) {
+  if (sessionCookie && checkSessionCookie(sessionCookie)) {
     return {
       statusCode: 200,
       body: JSON.stringify({ success: false, message: "Hal hazırda giriş etmiş vəziyyətdəsiniz." })
@@ -45,27 +67,22 @@ export async function handler(event, context) {
     const user = usersData.find(user => user.username === username && user.password === password);
     
     if (user) {
-      // Random session token oluştur
-      let result = '';
+      // Random token oluştur
+      let randomToken = '';
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      const charactersLength = characters.length;
-      for (let i = 0; i < 48; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      for (let i = 0; i < 32; i++) {
+        randomToken += characters.charAt(Math.floor(Math.random() * characters.length));
       }
 
-      // Token'a kullanıcı bilgisi ve zaman ekle (base64 encoded)
-      const sessionData = {
-        username: username,
-        createdAt: Date.now(),
-        token: result
-      };
-      const encodedSession = Buffer.from(JSON.stringify(sessionData)).toString('base64');
+      // Cookie içeriği: username:timestamp:randomToken
+      const cookieData = `${username}:${Date.now()}:${randomToken}`;
+      const encodedCookie = Buffer.from(cookieData).toString('base64');
 
       return {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Set-Cookie': `session_id=${encodedSession}; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax`
+          'Set-Cookie': `session_id=${encodedCookie}; Max-Age=43200; Path=/; HttpOnly; SameSite=Lax`
         },
         body: JSON.stringify({ success: true, message: "Xoş gəlmişsiniz!" })
       };

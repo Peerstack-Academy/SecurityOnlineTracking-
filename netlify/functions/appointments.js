@@ -4,7 +4,7 @@ const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS || '{}');
 const spreadsheetId = process.env.SPREADSHEET_ID || "1Zb8yexQkS2I2y8TyeVtQx6dZ51QzhxTNox4MXon5FmQ";
 const range = "Sheet1";
 
-const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000; // 12 saat
+const SESSION_EXPIRY_TIME = 12 * 60 * 60 * 1000;
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -17,16 +17,19 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
-function checkSession(encodedSession) {
-  if (!encodedSession) return false;
+function checkSessionCookie(cookieValue) {
+  if (!cookieValue) return false;
   
   try {
-    // Base64'ten decode et
-    const sessionJson = Buffer.from(encodedSession, 'base64').toString('utf-8');
-    const sessionData = JSON.parse(sessionJson);
+    // Cookie formatı: username:timestamp:randomToken
+    const decoded = Buffer.from(cookieValue, 'base64').toString('utf8');
+    const [username, timestamp] = decoded.split(':');
     
-    // Zaman kontrolü
-    if (Date.now() - sessionData.createdAt > SESSION_EXPIRY_TIME) {
+    const createdAt = parseInt(timestamp);
+    if (isNaN(createdAt)) return false;
+    
+    // Session süresi kontrolü
+    if (Date.now() - createdAt > SESSION_EXPIRY_TIME) {
       return false;
     }
     
@@ -48,7 +51,7 @@ export async function handler(event, context) {
   const cookies = parseCookies(event.headers.cookie);
   const sessionId = cookies.session_id;
 
-  if (!sessionId || !checkSession(sessionId)) {
+  if (!sessionId || !checkSessionCookie(sessionId)) {
     return {
       statusCode: 401,
       body: JSON.stringify({ success: false, message: "Giriş etmədən bu səhifəyə daxil ola bilməzsiniz." })

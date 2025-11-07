@@ -1,11 +1,3 @@
-import { Redis } from '@upstash/redis';
-
-// Initialize Redis client
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
 function parseCookies(cookieHeader) {
   const cookies = {};
   if (cookieHeader) {
@@ -29,23 +21,12 @@ export async function handler(event, context) {
   const sessionId = cookies.session_id;
 
   if (sessionId) {
-    // Delete session from Redis
-    try {
-      await redis.del(`session:${sessionId}`);
-    } catch (error) {
-      console.error('Redis delete error:', error);
-    }
-
-    // Determine if we're on HTTPS
-    const isProduction = event.headers.host && !event.headers.host.includes('localhost');
-    const secureCookie = isProduction ? '; Secure' : '';
-
-    // Clear cookie
+    // Session'ı temizle (cookie'yi sil)
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Set-Cookie': `session_id=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax${secureCookie}`
+        'Set-Cookie': 'session_id=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax'
       },
       body: JSON.stringify({ success: true, message: "Hesabınızdan çıxış etdiniz." })
     };
