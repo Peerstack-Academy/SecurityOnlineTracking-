@@ -1,10 +1,10 @@
-
 :root {
   --accent: #2b86d6;
   --muted: #888;
   --card-bg: #fff;
   --bg: #f6f8fa;
 }
+
 * {
   box-sizing: border-box;
   font-family: Inter, Arial, sans-serif;
@@ -12,7 +12,7 @@
 
 body {
   margin: 0;
-  background:#ffffff;
+  background: #ffffff;
   color: #123;
 }
 
@@ -80,6 +80,7 @@ body {
 .profile-icon:active {
   transform: scale(0.95);
 }
+
 /* Filter */
 .controls {
   padding: 20px;
@@ -116,6 +117,7 @@ body {
   font-size: 14px;
   background: #fff;
 }
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
@@ -223,7 +225,7 @@ body {
   border-radius: 14px;
   padding: 12px;
   min-height: 380px;
-  background:#fbfdff;
+  background: #fbfdff;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -459,11 +461,11 @@ body {
   .main {
     flex-direction: column;
   }
-  
+
   .right {
     width: 100%;
   }
-  
+
   .filter-grid {
     grid-template-columns: 1fr;
   }
@@ -474,19 +476,19 @@ body {
     overflow-x: auto;
     padding: 8px;
   }
-  
+
   .table-header,
   .row {
     min-width: 600px;
   }
-  
+
   .no-data {
     width: calc(600px - 44px);
     left: 300px;
     font-size: 16px;
     padding: 24px;
   }
-  
+
   .pagination {
     min-width: 600px;
   }
@@ -496,30 +498,30 @@ body {
   .filter-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .table-header {
     grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr;
     font-size: 13px;
     padding: 6px 8px;
   }
-  
+
   .row {
     grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr;
     font-size: 13px;
     padding: 8px;
   }
-  
-  .row > div {
+
+  .row>div {
     font-size: 13px;
   }
-  
+
   .no-data {
     width: calc(600px - 40px);
     left: 300px;
     font-size: 15px;
     padding: 22px;
   }
-  
+
   .pagination {
     min-width: 600px;
     font-size: 12px;
@@ -530,7 +532,7 @@ body {
   .table-card {
     padding: 6px;
   }
-  
+
   .table-header,
   .row {
     min-width: 500px;
@@ -538,25 +540,25 @@ body {
     font-size: 12px;
     padding: 6px;
   }
-  
+
   .no-data {
     width: calc(500px - 32px);
     left: 250px;
     font-size: 14px;
     padding: 20px;
   }
-  
+
   .pagination {
     min-width: 500px;
     font-size: 12px;
     padding: 4px 8px;
   }
-  
+
   .action-buttons {
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .action-buttons button {
     flex: 1 1 calc(50% - 4px);
     min-width: 120px;
@@ -569,7 +571,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:#ffffff;
+  background: #ffffff;
   padding: 20px;
 }
 
@@ -703,6 +705,7 @@ body {
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
+
 .login-footer {
   text-align: center;
   padding-top: 20px;
@@ -718,11 +721,11 @@ body {
   .login-card {
     padding: 30px 24px;
   }
-  
+
   .login-title {
     font-size: 24px;
   }
-  
+
   .login-title span {
     font-size: 18px;
   }
@@ -770,6 +773,7 @@ body {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -842,6 +846,7 @@ body {
   transform: scale(0.98);
   box-shadow: 0 2px 8px rgba(177, 19, 35, 0.4);
 }
+
 @media (max-width: 545px) {
   .right {
     display: flex;
@@ -853,5 +858,24 @@ body {
   .cal-day {
     width: 34px !important;
     height: 34px !important;
+  }
+
+  .filter-item input,
+  .filter-item select {
+    padding: 6px 8px;
+  }
+
+  .app {
+    max-width: 1100px;
+    padding: 0;
+    padding-bottom: 30px;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .filter-item label,
+  select,
+  input {
+    font-size: 12px;
   }
 }
