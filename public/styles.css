@@ -875,7 +875,7 @@ body {
 
   .filter-item label,
   select,
-  input {
+  input, option {
     font-size: 12px;
   }
 }
