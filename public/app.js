@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   let selectedDate = null; 
   let currentPage = 1;
-  const pageSize = 7;
+  const pageSize = 25;
   let calendarMonth = new Date(); 
 
   const el = id=>document.getElementById(id);
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   function updateStatusCounts() {
     const filtered = applyFilters();
     
-    const telebeCount = filtered.filter(r => r.role === 'Telebe').length;
+    const telebeCount = filtered.filter(r => r.role === 'Tələbə').length;
     const isciCount = filtered.filter(r => r.role === 'İşçi').length;
     const qonaqCount = filtered.filter(r => r.role === 'Qonaq').length;
     
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const isciBtn = document.getElementById('count-isci');
     const qonaqBtn = document.getElementById('count-qonaq');
     
-    if (telebeBtn) telebeBtn.innerHTML = `Telebe: <span>${telebeCount}</span>`;
+    if (telebeBtn) telebeBtn.innerHTML = `Tələbə: <span>${telebeCount}</span>`;
     if (isciBtn) isciBtn.innerHTML = `İşçi: <span>${isciCount}</span>`;
     if (qonaqBtn) qonaqBtn.innerHTML = `Qonaq: <span>${qonaqCount}</span>`;
   }
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   
   if (telebeBtn) {
     telebeBtn.addEventListener('click', () => {
-      inRole.value = 'Telebe';
+      inRole.value = 'Tələbə';
       fetchData();
     });
   }
