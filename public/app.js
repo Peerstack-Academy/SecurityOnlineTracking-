@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded',()=>{
-  
+document.addEventListener('DOMContentLoaded', () => {
+
   const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -15,12 +15,12 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   const data = [];
 
-  let selectedDate = null; 
+  let selectedDate = null;
   let currentPage = 1;
   const pageSize = 25;
-  let calendarMonth = new Date(); 
+  let calendarMonth = new Date();
 
-  const el = id=>document.getElementById(id);
+  const el = id => document.getElementById(id);
   const tableBody = el('table-body');
   const noData = el('no-data');
   const pagination = el('pagination');
@@ -42,17 +42,17 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     let fromDate = '';
     let toDate = '';
-    
+
     if (inFrom.value) {
       const fromParts = inFrom.value.split('-');
       fromDate = `${parseInt(fromParts[1])}/${parseInt(fromParts[2])}/${fromParts[0]}`;
     }
-    
+
     if (inTo.value) {
       const toParts = inTo.value.split('-');
       toDate = `${parseInt(toParts[1])}/${parseInt(toParts[2])}/${toParts[0]}`;
     }
-    
+
     const date = (fromDate || toDate) ? '' : (selectedDate ? `${selectedDate.getMonth() + 1}/${selectedDate.getDate()}/${selectedDate.getFullYear()}` : '');
     const fin = inFin.value.trim();
 
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
 
       const apiData = await response.json();
-      
+
       data.length = 0;
       apiData.forEach(item => {
         const nameParts = item.NAME.trim().split(' ');
@@ -102,41 +102,43 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   el('btn-search').addEventListener('click', fetchData);
-  el('btn-reset').addEventListener('click',()=>{ inName.value='';inSurname.value='';inFin.value='';inFrom.value='';inTo.value='';inRole.value=''; selectedDate=null; currentPage=1; fetchData(); renderCalendar(); });
-  el('btn-today').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; selectedDate=new Date(); calendarMonth=new Date(); currentPage=1; fetchData(); renderCalendar(); });
-  el('cal-prev').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()-1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
-  el('cal-next').addEventListener('click',()=>{ inFrom.value=''; inTo.value=''; if(!selectedDate) selectedDate=new Date(); selectedDate.setDate(selectedDate.getDate()+1); calendarMonth=new Date(selectedDate); currentPage=1; fetchData(); renderCalendar(); });
-  el('month-prev').addEventListener('click',()=>{ calendarMonth.setMonth(calendarMonth.getMonth()-1); renderCalendar(); });
-  el('month-next').addEventListener('click',()=>{ calendarMonth.setMonth(calendarMonth.getMonth()+1); renderCalendar(); });
+  el('btn-reset').addEventListener('click', () => { inName.value = ''; inSurname.value = ''; inFin.value = ''; inFrom.value = ''; inTo.value = ''; inRole.value = ''; selectedDate = null; currentPage = 1; fetchData(); renderCalendar(); });
+  el('btn-today').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; selectedDate = new Date(); calendarMonth = new Date(); currentPage = 1; fetchData(); renderCalendar(); });
+  el('cal-prev').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; if (!selectedDate) selectedDate = new Date(); selectedDate.setDate(selectedDate.getDate() - 1); calendarMonth = new Date(selectedDate); currentPage = 1; fetchData(); renderCalendar(); });
+  el('cal-next').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; if (!selectedDate) selectedDate = new Date(); selectedDate.setDate(selectedDate.getDate() + 1); calendarMonth = new Date(selectedDate); currentPage = 1; fetchData(); renderCalendar(); });
+  el('month-prev').addEventListener('click', () => { calendarMonth.setMonth(calendarMonth.getMonth() - 1); renderCalendar(); });
+  el('month-next').addEventListener('click', () => { calendarMonth.setMonth(calendarMonth.getMonth() + 1); renderCalendar(); });
 
-  function formatDateTime(dt){
+  function formatDateTime(dt) {
     try {
-      const [dateStr, timeStr] = dt.split(' ');
+      const [dateStr, timeStr = ''] = dt.split(' ');
       const [month, day, year] = dateStr.split('/');
-      return `${day}/${month}/${year} ${timeStr}`;
+      const formatted = `${day}/${month}/${year}`;
+      return timeStr ? `${formatted} ${timeStr}` : formatted;
     } catch (e) {
       return dt;
     }
   }
 
-  function sameDay(a,b){
-    return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+
+  function sameDay(a, b) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
 
-  function applyFilters(){
+  function applyFilters() {
     let out = data.slice();
     const name = inName.value.trim().toLowerCase();
     const surname = inSurname.value.trim().toLowerCase();
     const fin = inFin.value.trim().toLowerCase();
     const role = inRole.value;
-    const from = inFrom.value? new Date(inFrom.value+ 'T00:00'):null;
-    const to = inTo.value? new Date(inTo.value+ 'T23:59'):null;
+    const from = inFrom.value ? new Date(inFrom.value + 'T00:00') : null;
+    const to = inTo.value ? new Date(inTo.value + 'T23:59') : null;
 
-    if(name) out = out.filter(r=>r.name.toLowerCase().includes(name));
-    if(surname) out = out.filter(r=>r.surname.toLowerCase().includes(surname));
-    if(fin) out = out.filter(r=>r.fin.toLowerCase().includes(fin));
-    if(role) out = out.filter(r=>r.role===role);
-    if(from) out = out.filter(r=> {
+    if (name) out = out.filter(r => r.name.toLowerCase().includes(name));
+    if (surname) out = out.filter(r => r.surname.toLowerCase().includes(surname));
+    if (fin) out = out.filter(r => r.fin.toLowerCase().includes(fin));
+    if (role) out = out.filter(r => r.role === role);
+    if (from) out = out.filter(r => {
       try {
         const dateStr = r.datetime.split(' ')[0];
         const [month, day, year] = dateStr.split('/');
@@ -144,7 +146,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         return itemDate >= from;
       } catch (e) { return true; }
     });
-    if(to) out = out.filter(r=> {
+    if (to) out = out.filter(r => {
       try {
         const dateStr = r.datetime.split(' ')[0];
         const [month, day, year] = dateStr.split('/');
@@ -152,8 +154,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         return itemDate <= to;
       } catch (e) { return true; }
     });
-    if(selectedDate && !from && !to){
-      out = out.filter(r=> {
+    if (selectedDate && !from && !to) {
+      out = out.filter(r => {
         try {
           const dateStr = r.datetime.split(' ')[0];
           const [month, day, year] = dateStr.split('/');
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     return out;
   }
 
-  function render(){
+  function render() {
     const filtered = applyFilters();
 
     filtered.sort((a, b) => {
@@ -175,7 +177,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         const dateA = new Date(yearA, monthA - 1, dayA);
         if (timeStrA) {
           const [hourA, minA, secA] = timeStrA.split(':');
-          dateA.setHours(hourA, minA, secA || 0);
+          dateA.setHours(hourA || 0, minA || 0, secA || 0);
         }
 
         const [dateStrB, timeStrB] = b.datetime.split(' ');
@@ -193,31 +195,31 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
 
     const total = filtered.length;
-    const pages = Math.max(1, Math.ceil(total/pageSize));
-    if(currentPage>pages) currentPage = pages;
-    const start = (currentPage-1)*pageSize;
-    const pageItems = filtered.slice(start, start+pageSize);
+    const pages = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > pages) currentPage = pages;
+    const start = (currentPage - 1) * pageSize;
+    const pageItems = filtered.slice(start, start + pageSize);
 
-    tableBody.innerHTML='';
-    if(pageItems.length===0){
-      noData.style.display='block';
+    tableBody.innerHTML = '';
+    if (pageItems.length === 0) {
+      noData.style.display = 'block';
     } else {
-      noData.style.display='none';
-      for(const r of pageItems){
+      noData.style.display = 'none';
+      for (const r of pageItems) {
         const row = document.createElement('div');
-        row.className='row';
+        row.className = 'row';
         row.innerHTML = `<div>${r.name} ${r.surname}</div><div>${r.fin}</div><div>${formatDateTime(r.datetime)}</div><div>${r.role}</div>`;
         tableBody.appendChild(row);
       }
     }
 
     pagination.innerHTML = '';
-    if(pages>1){
+    if (pages > 1) {
       const prevBtn = document.createElement('button');
       prevBtn.textContent = '‹';
       prevBtn.style.cssText = 'margin:0 4px;padding:4px 8px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;';
-      prevBtn.disabled = currentPage===1;
-      prevBtn.onclick = ()=>{ if(currentPage>1){ currentPage--; render(); } };
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
       pagination.appendChild(prevBtn);
 
       const info = document.createElement('span');
@@ -228,47 +230,47 @@ document.addEventListener('DOMContentLoaded',()=>{
       const nextBtn = document.createElement('button');
       nextBtn.textContent = '›';
       nextBtn.style.cssText = 'margin:0 4px;padding:4px 8px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;';
-      nextBtn.disabled = currentPage===pages;
-      nextBtn.onclick = ()=>{ if(currentPage<pages){ currentPage++; render(); } };
+      nextBtn.disabled = currentPage === pages;
+      nextBtn.onclick = () => { if (currentPage < pages) { currentPage++; render(); } };
       pagination.appendChild(nextBtn);
     } else {
       pagination.innerHTML = `Səhifə 1 / 1`;
     }
 
-    selectedDateEl.textContent = selectedDate? selectedDate.toLocaleDateString() : '—';
-    
+    selectedDateEl.textContent = selectedDate ? selectedDate.toLocaleDateString() : '—';
+
     updateStatusCounts();
   }
 
-  function renderCalendar(){
-    calendarEl.innerHTML='';
+  function renderCalendar() {
+    calendarEl.innerHTML = '';
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
-    const monthNames = ['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
+    const monthNames = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'];
     monthLabel.textContent = `${monthNames[month]} ${year}`;
 
-    const firstDay = new Date(year,month,1).getDay();
-    const daysInMonth = new Date(year,month+1,0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const blanks = firstDay;
-    for(let i=0;i<blanks;i++){
+    for (let i = 0; i < blanks; i++) {
       const el = document.createElement('div');
       calendarEl.appendChild(el);
     }
 
-    for(let d=1; d<=daysInMonth; d++){
+    for (let d = 1; d <= daysInMonth; d++) {
       const cell = document.createElement('div');
-      cell.className='cal-day';
-      const cellDate = new Date(year,month,d);
+      cell.className = 'cal-day';
+      const cellDate = new Date(year, month, d);
       cell.textContent = d;
-      if(selectedDate && sameDay(cellDate, selectedDate)) cell.classList.add('selected');
-      cell.addEventListener('click',()=>{ 
-        selectedDate = new Date(year,month,d);
+      if (selectedDate && sameDay(cellDate, selectedDate)) cell.classList.add('selected');
+      cell.addEventListener('click', () => {
+        selectedDate = new Date(year, month, d);
         inFrom.value = '';
         inTo.value = '';
-        currentPage=1; 
+        currentPage = 1;
         fetchData();
-        renderCalendar(); 
+        renderCalendar();
       });
       calendarEl.appendChild(cell);
     }
@@ -276,43 +278,43 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function updateStatusCounts() {
     const filtered = applyFilters();
-    
+
     const telebeCount = filtered.filter(r => r.role === 'Tələbə').length;
     const isciCount = filtered.filter(r => r.role === 'İşçi').length;
     const qonaqCount = filtered.filter(r => r.role === 'Qonaq').length;
-    
+
     const telebeBtn = document.getElementById('count-telebe');
     const isciBtn = document.getElementById('count-isci');
     const qonaqBtn = document.getElementById('count-qonaq');
-    
+
     if (telebeBtn) telebeBtn.innerHTML = `Tələbə: <span>${telebeCount}</span>`;
     if (isciBtn) isciBtn.innerHTML = `İşçi: <span>${isciCount}</span>`;
     if (qonaqBtn) qonaqBtn.innerHTML = `Qonaq: <span>${qonaqCount}</span>`;
   }
 
-  selectedDate = new Date(); 
-  calendarMonth = new Date(); 
+  selectedDate = new Date();
+  calendarMonth = new Date();
   renderCalendar();
   fetchData();
 
   const telebeBtn = document.getElementById('count-telebe');
   const isciBtn = document.getElementById('count-isci');
   const qonaqBtn = document.getElementById('count-qonaq');
-  
+
   if (telebeBtn) {
     telebeBtn.addEventListener('click', () => {
       inRole.value = 'Tələbə';
       fetchData();
     });
   }
-  
+
   if (isciBtn) {
     isciBtn.addEventListener('click', () => {
       inRole.value = 'İşçi';
       fetchData();
     });
   }
-  
+
   if (qonaqBtn) {
     qonaqBtn.addEventListener('click', () => {
       inRole.value = 'Qonaq';
@@ -346,7 +348,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   if (confirmLogoutBtn) {
     confirmLogoutBtn.addEventListener('click', () => {
-      fetch('/api/logout', { 
+      fetch('/api/logout', {
         method: 'GET',
         credentials: 'same-origin'
       })
