@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       currentPage = 1;
+      data.reverse();
       render();
     } catch (error) {
       console.error('Fetch error:', error);
