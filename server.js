@@ -54,7 +54,7 @@ app.post('/api/appointments', async (req, res) => {
 
     const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
 
-    const rows = sheet_response.data.values.filter(row => row.NAME);
+    const rows = sheet_response.data.values.filter(row => row && row[0] && row[0].trim());
     const headers = rows[0];
     const json_data = [];
     
@@ -126,7 +126,7 @@ app.post('/api/appointments', async (req, res) => {
             }
         }
 
-        if (filter_check) {
+        if (filter_check && rowData.NAME && rowData.NAME.trim()) {
             json_data.push(rowData);
         }
     }
