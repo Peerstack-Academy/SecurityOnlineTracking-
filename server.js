@@ -83,8 +83,10 @@ app.post('/api/appointments', async (req, res) => {
             }
         }
 
-        if (recieved_data.status && recieved_data.status.trim() !== '' && filter_check) {
-            if (!rowData.STATUS.toLowerCase().includes(recieved_data.status.toLowerCase())) {
+        if (recieved_data.carNumber && recieved_data.carNumber.trim() !== '' && filter_check) {
+            const searchCar = recieved_data.carNumber.replace(/-/g, '').toLowerCase();
+            const rowCar = (rowData.CARNUMBER || '').replace(/-/g, '').toLowerCase();
+            if (!rowCar.includes(searchCar)) {
                 filter_check = false;
             }
         }

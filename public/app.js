@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentPage = 1;
   const pageSize = 25;
   let calendarMonth = new Date();
+  let currentRoleFilter = '';
 
   const el = id => document.getElementById(id);
   const tableBody = el('table-body');
@@ -33,12 +34,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const inFin = el('filter-fin');
   const inFrom = el('filter-from');
   const inTo = el('filter-to');
-  const inRole = el('filter-role');
+  const inCar = el('filter-car');
+
+  // Format car number input as user types (00-AA-000)
+  function formatCarNumber(value) {
+    // Remove all non-alphanumeric characters
+    let cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    
+    // Format as 00-AA-000
+    let formatted = '';
+    if (cleaned.length > 0) {
+      formatted = cleaned.substring(0, 2);
+    }
+    if (cleaned.length > 2) {
+      formatted += '-' + cleaned.substring(2, 4);
+    }
+    if (cleaned.length > 4) {
+      formatted += '-' + cleaned.substring(4, 7);
+    }
+    return formatted;
+  }
+
+  if (inCar) {
+    inCar.addEventListener('input', (e) => {
+      const cursorPos = e.target.selectionStart;
+      const oldValue = e.target.value;
+      const newValue = formatCarNumber(oldValue);
+      e.target.value = newValue;
+      
+      // Adjust cursor position
+      const diff = newValue.length - oldValue.length;
+      e.target.setSelectionRange(cursorPos + diff, cursorPos + diff);
+    });
+  }
 
   async function fetchData() {
     const ad = inName.value.trim();
     const soyad = inSurname.value.trim();
-    const status = inRole.value;
+    const carNumber = inCar ? inCar.value.trim() : '';
 
     let fromDate = '';
     let toDate = '';
@@ -63,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Content-Type': 'application/json'
         },
         credentials: 'same-origin',
-        body: JSON.stringify({ ad, soyad, status, date, fin, fromDate, toDate })
+        body: JSON.stringify({ ad, soyad, carNumber, date, fin, fromDate, toDate })
       });
 
       if (!response.ok) {
@@ -103,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  el('btn-search').addEventListener('click', fetchData);
-  el('btn-reset').addEventListener('click', () => { inName.value = ''; inSurname.value = ''; inFin.value = ''; inFrom.value = ''; inTo.value = ''; inRole.value = ''; selectedDate = null; currentPage = 1; fetchData(); renderCalendar(); });
-  el('btn-today').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; selectedDate = new Date(); calendarMonth = new Date(); currentPage = 1; fetchData(); renderCalendar(); });
+  el('btn-search').addEventListener('click', () => { selectedDate = null; currentRoleFilter = ''; currentPage = 1; fetchData(); renderCalendar(); });
+  el('btn-reset').addEventListener('click', () => { inName.value = ''; inSurname.value = ''; inFin.value = ''; inFrom.value = ''; inTo.value = ''; if (inCar) inCar.value = ''; selectedDate = null; currentRoleFilter = ''; currentPage = 1; fetchData(); renderCalendar(); });
+  el('btn-today').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; selectedDate = new Date(); calendarMonth = new Date(); currentRoleFilter = ''; currentPage = 1; fetchData(); renderCalendar(); });
   el('cal-prev').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; if (!selectedDate) selectedDate = new Date(); selectedDate.setDate(selectedDate.getDate() - 1); calendarMonth = new Date(selectedDate); currentPage = 1; fetchData(); renderCalendar(); });
   el('cal-next').addEventListener('click', () => { inFrom.value = ''; inTo.value = ''; if (!selectedDate) selectedDate = new Date(); selectedDate.setDate(selectedDate.getDate() + 1); calendarMonth = new Date(selectedDate); currentPage = 1; fetchData(); renderCalendar(); });
   el('month-prev').addEventListener('click', () => { calendarMonth.setMonth(calendarMonth.getMonth() - 1); renderCalendar(); });
@@ -132,14 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = inName.value.trim().toLowerCase();
     const surname = inSurname.value.trim().toLowerCase();
     const fin = inFin.value.trim().toLowerCase();
-    const role = inRole.value;
+    const carNumber = inCar ? inCar.value.trim().toLowerCase() : '';
     const from = inFrom.value ? new Date(inFrom.value + 'T00:00') : null;
     const to = inTo.value ? new Date(inTo.value + 'T23:59') : null;
 
     if (name) out = out.filter(r => r.name.toLowerCase().includes(name));
     if (surname) out = out.filter(r => r.surname.toLowerCase().includes(surname));
     if (fin) out = out.filter(r => r.fin.toLowerCase().includes(fin));
-    if (role) out = out.filter(r => r.role === role);
+    if (carNumber) out = out.filter(r => r.carNumber.toLowerCase().replace(/-/g, '').includes(carNumber.replace(/-/g, '')));
     if (from) out = out.filter(r => {
       try {
         const dateStr = r.datetime.split(' ')[0];
@@ -166,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { return false; }
       });
     }
+    if (currentRoleFilter) out = out.filter(r => r.role === currentRoleFilter);
     return out;
   }
 
@@ -305,22 +339,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (telebeBtn) {
     telebeBtn.addEventListener('click', () => {
-      inRole.value = 'Tələbə';
-      fetchData();
+      currentRoleFilter = 'Tələbə';
+      render();
     });
   }
 
   if (isciBtn) {
     isciBtn.addEventListener('click', () => {
-      inRole.value = 'İşçi';
-      fetchData();
+      currentRoleFilter = 'İşçi';
+      render();
     });
   }
 
   if (qonaqBtn) {
     qonaqBtn.addEventListener('click', () => {
-      inRole.value = 'Qonaq';
-      fetchData();
+      currentRoleFilter = 'Qonaq';
+      render();
     });
   }
 

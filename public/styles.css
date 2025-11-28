@@ -118,11 +118,19 @@ body {
   background: #fff;
 }
 
+/* Controls Footer */
+.controls-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
 }
 
 .action-buttons button {
@@ -424,14 +432,20 @@ body {
 
 /* Role Counts */
 .role-counts {
-  margin-top: 12px;
   color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-counts > div:first-child {
+  font-weight: 500;
+  color: #333;
 }
 
 .badges {
   display: flex;
   gap: 8px;
-  margin-top: 6px;
 }
 
 .badge {

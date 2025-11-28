@@ -98,8 +98,10 @@ export async function handler(event, context) {
         }
       }
 
-      if (receivedData.status && receivedData.status.trim() !== '' && filterCheck) {
-        if (!rowData.STATUS.toLowerCase().includes(receivedData.status.toLowerCase())) {
+      if (receivedData.carNumber && receivedData.carNumber.trim() !== '' && filterCheck) {
+        const searchCar = receivedData.carNumber.replace(/-/g, '').toLowerCase();
+        const rowCar = (rowData.CARNUMBER || '').replace(/-/g, '').toLowerCase();
+        if (!rowCar.includes(searchCar)) {
           filterCheck = false;
         }
       }
