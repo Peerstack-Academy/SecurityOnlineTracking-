@@ -54,7 +54,7 @@ app.post('/api/appointments', async (req, res) => {
 
     const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
 
-    const rows = sheet_response.data.values.filter(row => row && row[0] && row[0].trim());
+    const rows = sheet_response.data.values;
     const headers = rows[0];
     const json_data = [];
     
@@ -62,6 +62,11 @@ app.post('/api/appointments', async (req, res) => {
         const rowData = {};
         for (let j = 1; j < headers.length; j++) {
             rowData[headers[j]] = rows[i][j] || "";
+        }
+
+        // Skip rows with empty NAME
+        if (!rowData.NAME || rowData.NAME.trim() === '') {
+            continue;
         }
 
         let filter_check = true;
@@ -126,7 +131,7 @@ app.post('/api/appointments', async (req, res) => {
             }
         }
 
-        if (filter_check && rowData.NAME && rowData.NAME.trim()) {
+        if (filter_check) {
             json_data.push(rowData);
         }
     }

@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
           name: name,
           surname: surname,
           fin: item.FIN,
-          carnumber: item.CARNUMBER || '',
+          carNumber: item.CARNUMBER || '',
           datetime: item.DATE,
           role: item.STATUS
         });
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
       for (const r of pageItems) {
         const row = document.createElement('div');
         row.className = 'row';
-        row.innerHTML = `<div>${r.name} ${r.surname}</div><div>${r.fin}</div><div>${r.carnumber}</div><div>${formatDateTime(r.datetime)}</div><div>${r.role}</div>`;
+        row.innerHTML = `<div>${r.name} ${r.surname}</div><div>${r.fin}</div><div>${r.carNumber}</div><div>${formatDateTime(r.datetime)}</div><div>${r.role}</div>`;
         tableBody.appendChild(row);
       }
     }

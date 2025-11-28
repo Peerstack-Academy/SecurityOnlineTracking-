@@ -79,6 +79,11 @@ export async function handler(event, context) {
         rowData[headers[j]] = rows[i][j] || "";
       }
 
+      // Skip rows with empty NAME
+      if (!rowData.NAME || rowData.NAME.trim() === '') {
+        continue;
+      }
+
       let filterCheck = true;
 
       if (receivedData.ad && receivedData.ad.trim() !== '') {

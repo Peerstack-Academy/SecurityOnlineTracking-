@@ -233,7 +233,7 @@ body {
 
 .table-header {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr 0.8fr;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr 0.8fr;
   padding: 8px 12px;
   color: var(--accent);
   font-weight: 600;
@@ -245,7 +245,7 @@ body {
 
 .row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr 0.8fr;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr 0.8fr;
   padding: 10px 12px;
   border-top: 1px solid #f0f0f0;
   align-items: center;
@@ -500,13 +500,13 @@ body {
   }
 
   .table-header {
-    grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr 0.8fr;
     font-size: 13px;
     padding: 6px 8px;
   }
 
   .row {
-    grid-template-columns: 1.5fr 1fr 1.5fr 0.8fr;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr 0.8fr;
     font-size: 13px;
     padding: 8px;
   }
@@ -535,8 +535,8 @@ body {
 
   .table-header,
   .row {
-    min-width: 500px;
-    grid-template-columns: 1.5fr 1fr 1.3fr 0.7fr;
+    min-width: 550px;
+    grid-template-columns: 1.5fr 1fr 1fr 1.3fr 0.7fr;
     font-size: 12px;
     padding: 6px;
   }
