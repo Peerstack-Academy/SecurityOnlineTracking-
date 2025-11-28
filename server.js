@@ -43,6 +43,27 @@ const client = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth: client });
 
+// Cache for Google Sheets data
+let cachedData = null;
+let cacheHeaders = null;
+const CACHE_INTERVAL = 5000; // 5 seconds
+
+async function fetchSheetData() {
+    try {
+        const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
+        const rows = sheet_response.data.values;
+        cacheHeaders = rows[0];
+        cachedData = rows.slice(1);
+        console.log(`Cache updated at ${new Date().toLocaleTimeString()} - ${cachedData.length} rows`);
+    } catch (error) {
+        console.error('Error fetching sheet data:', error);
+    }
+}
+
+// Initial fetch and start interval
+fetchSheetData();
+setInterval(fetchSheetData, CACHE_INTERVAL);
+
 app.post('/api/appointments', async (req, res) => {
     const session_id = req.cookies.session_id;
 
@@ -50,18 +71,20 @@ app.post('/api/appointments', async (req, res) => {
         return res.status(401).json({ success: false, message: "Giriş etmədən bu səhifəyə daxil ola bilməzsiniz." });
     }
 
+    // Wait for initial cache if not ready
+    if (!cachedData || !cacheHeaders) {
+        await fetchSheetData();
+    }
+
     const recieved_data = req.body;
 
-    const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
-
-    const rows = sheet_response.data.values;
-    const headers = rows[0];
+    const headers = cacheHeaders;
     const json_data = [];
     
-    for (let i = 1; i < rows.length; i++) {
+    for (let i = 0; i < cachedData.length; i++) {
         const rowData = {};
         for (let j = 1; j < headers.length; j++) {
-            rowData[headers[j]] = rows[i][j] || "";
+            rowData[headers[j]] = cachedData[i][j] || "";
         }
 
         // Skip rows with empty NAME

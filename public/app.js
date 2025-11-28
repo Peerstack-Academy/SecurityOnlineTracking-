@@ -326,6 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (telebeBtn) telebeBtn.innerHTML = `Tələbə: <span>${telebeCount}</span>`;
     if (isciBtn) isciBtn.innerHTML = `İşçi: <span>${isciCount}</span>`;
     if (qonaqBtn) qonaqBtn.innerHTML = `Qonaq: <span>${qonaqCount}</span>`;
+
+    // Update selected styles
+    if (telebeBtn) telebeBtn.classList.toggle('selected', currentRoleFilter === 'Tələbə');
+    if (isciBtn) isciBtn.classList.toggle('selected', currentRoleFilter === 'İşçi');
+    if (qonaqBtn) qonaqBtn.classList.toggle('selected', currentRoleFilter === 'Qonaq');
   }
 
   selectedDate = new Date();
@@ -337,23 +342,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const isciBtn = document.getElementById('count-isci');
   const qonaqBtn = document.getElementById('count-qonaq');
 
+  function updateStatusButtonStyles() {
+    if (telebeBtn) telebeBtn.classList.toggle('selected', currentRoleFilter === 'Tələbə');
+    if (isciBtn) isciBtn.classList.toggle('selected', currentRoleFilter === 'İşçi');
+    if (qonaqBtn) qonaqBtn.classList.toggle('selected', currentRoleFilter === 'Qonaq');
+  }
+
   if (telebeBtn) {
     telebeBtn.addEventListener('click', () => {
-      currentRoleFilter = 'Tələbə';
+      currentRoleFilter = currentRoleFilter === 'Tələbə' ? '' : 'Tələbə';
+      updateStatusButtonStyles();
       render();
     });
   }
 
   if (isciBtn) {
     isciBtn.addEventListener('click', () => {
-      currentRoleFilter = 'İşçi';
+      currentRoleFilter = currentRoleFilter === 'İşçi' ? '' : 'İşçi';
+      updateStatusButtonStyles();
       render();
     });
   }
 
   if (qonaqBtn) {
     qonaqBtn.addEventListener('click', () => {
-      currentRoleFilter = 'Qonaq';
+      currentRoleFilter = currentRoleFilter === 'Qonaq' ? '' : 'Qonaq';
+      updateStatusButtonStyles();
       render();
     });
   }
