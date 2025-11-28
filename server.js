@@ -54,7 +54,7 @@ app.post('/api/appointments', async (req, res) => {
 
     const sheet_response = await sheets.spreadsheets.values.get({ spreadsheetId, range });
 
-    const rows = sheet_response.data.values;
+    const rows = sheet_response.data.values.filter(row => row.NAME);
     const headers = rows[0];
     const json_data = [];
     
